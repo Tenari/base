@@ -692,4 +692,16 @@ fn void stringChunkListDeleteLast(StringArena* a, StringChunkList* list);
 fn StringChunkList stringChunkListInit(StringArena* a);
 fn void stringChunkCopyToBuffer(StringChunkList* list, u8* buffer, u32 len);
 
+///// BINARY SERIALIZATION NONSENSE
+fn u64 writeU64ToBufferLE(u8* buffer, u64 value);
+fn u64 writeU32ToBufferLE(u8* buffer, u32 value);
+fn u64 writeI32ToBufferLE(u8* buffer, i32 value);
+fn u64 writeU16ToBufferLE(u8* buffer, u16 value);
+fn u64 writeF32ToBufferLE(u8* buffer, f32 value);
+fn u64 readU64FromBufferLE(u8 *buffer);
+fn u32 readU32FromBufferLE(u8 *buffer);
+fn i32 readI32FromBufferLE(u8 *buffer);
+fn u16 readU16FromBufferLE(u8 *buffer);
+fn f32 readF32FromBufferLE(u8 *buf);
+
 #endif// BASE_ALL_H
