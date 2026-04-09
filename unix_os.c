@@ -1,9 +1,21 @@
 #include "all.h"
 
 global pthread_key_t linux_thread_context_key;
+global void (*_ctrl_c_handler_fn_ptr)() = NULL;
 // ThreadContext
 void osInit() {
   pthread_key_create(&linux_thread_context_key, NULL);
+}
+
+void _osGenericSignalHandler(i32 signal) {
+  if (signal == SIGINT && _ctrl_c_handler_fn_ptr != NULL) {
+    _ctrl_c_handler_fn_ptr();
+  }
+}
+
+void osSetCtrlCCallback(void (*handler)()) {
+  _ctrl_c_handler_fn_ptr = handler;
+  signal(SIGINT, _osGenericSignalHandler);
 }
 
 void* osThreadContextGet() {

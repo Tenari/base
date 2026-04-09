@@ -124,6 +124,33 @@ fn bool osFileWrite(String filename, String data) {
   return result;
 }
 
+fn Resulti64 osFileOpenForWriting(String filename) {
+  size_t handle = open((str)filename.bytes, O_WRONLY | O_APPEND, S_IRUSR | S_IRGRP | S_IROTH);
+  Resulti64 result = {
+    .success = handle != -1,
+    .value = (i64)handle,
+  };
+  return result;
+}
+
+fn Resulti64 osFileClose(Resulti64 handle) {
+  i32 close_result = close((size_t)handle.value);
+  Resulti64 result = {
+    .success = close_result != -1,
+    .value = (i64)close_result,
+  };
+  return result;
+}
+
+fn bool osFileWriteOpenFile(Resulti64 handle, String data) {
+  assert(handle.success == true);
+  i32 wrote_this_round = 0;
+  for (i32 bytes_written = 0; bytes_written < data.length; bytes_written += wrote_this_round) {
+    wrote_this_round = write((size_t)handle.value, data.bytes + bytes_written, data.length - bytes_written);
+    if (wrote_this_round == -1) return false;
+  }
+  return true;
+}
 
 // Misc
 fn void osDebugPrint(bool debug_mode, const char * format, ... ) {

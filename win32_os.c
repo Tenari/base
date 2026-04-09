@@ -5,6 +5,7 @@
 
 static u64 w32_ticks_per_sec = 1;
 static u32 w32_thread_context_index;
+global void (*_ctrl_c_handler_fn_ptr)() = NULL;
 
 void osInit() {
 	LARGE_INTEGER perf_freq = {0};
@@ -14,6 +15,19 @@ void osInit() {
 	timeBeginPeriod(1);
 
 	w32_thread_context_index = TlsAlloc();
+}
+
+BOOL WINAPI _osGenericSignalHandler(DWORD event) {
+  if (event == CTRL_C_EVENT && _ctrl_c_handler_fn_ptr != NULL) {
+    _ctrl_c_handler_fn_ptr();
+    return TRUE;
+  }
+  return FALSE;
+}
+
+void osSetCtrlCCallback(void (*handler)()) {
+  _ctrl_c_handler_fn_ptr = handler;
+  SetConsoleCtrlHandler(_osGenericSignalHandler, TRUE);
 }
 
 void* osThreadContextGet() {
@@ -88,6 +102,21 @@ fn bool osFileWrite(String filename, String data) {
   assert(false && "Not Implemented");
   bool result = true;
   return result;
+}
+
+fn Resulti64 osFileOpenForWriting(String filename) {
+  assert(false && "Not Implemented");
+  return (Resulti64) {};
+}
+
+fn Resulti64 osFileClose(Resulti64 handle) {
+  assert(false && "Not Implemented");
+  return (Resulti64) {};
+}
+
+fn bool osFileWriteOpenFile(Resulti64 handle, String data) {
+  assert(false && "Not Implemented");
+  return false;
 }
 
 

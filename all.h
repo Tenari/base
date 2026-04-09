@@ -288,6 +288,11 @@ typedef u32 b32;
 #define false 0
 
 // Structs
+typedef struct Resulti64 {
+  bool success;
+  i64 value;
+} Resulti64;
+
 typedef struct Arena {
   u8* memory;
   u64 max;
@@ -462,6 +467,7 @@ union Range1f32
 
   int poll(struct pollfd *fds, nfds_t nfds, int timeout);
 #else
+#  include <signal.h>
 #  include <poll.h>
 #  include <sys/socket.h>
 #  include <netinet/in.h>
@@ -598,6 +604,7 @@ fn bool isSimplePrintable(u8 c);
 
 ///// OS-wrapped apis
 void      osInit();
+void      osSetCtrlCCallback(void (*handler)());
 void*     osThreadContextGet();
 void      osThreadContextSet(void* ctx);
 bool      osThreadJoin(Thread handle, u64 endt_us);
@@ -620,6 +627,9 @@ fn String osFileRead(Arena* arena, ptr filepath);
 fn bool   osFileCreate(String filename);
 fn bool   osFileCreateWrite(String filename, String data);
 fn bool   osFileWrite(String filename, String data);
+fn Resulti64 osFileOpenForWriting(String filename);
+fn Resulti64 osFileClose(Resulti64 handle);
+fn bool   osFileWriteOpenFile(Resulti64 handle, String data);
 
 fn void   osDebugPrint(bool debug_mode, const char* format, ...);
 
