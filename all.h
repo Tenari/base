@@ -423,16 +423,22 @@ union Range1i64
   i64 v[2];
 };
 
-typedef union Range1f32 Range1f32;
-union Range1f32
-{
+typedef union Vec2f32 {
   struct
   {
     f32 min;
     f32 max;
   };
+  struct
+  {
+    f32 x;
+    f32 y;
+  };
   f32 v[2];
-};
+} Vec2f32;
+
+typedef Vec2f32 Range1f32;
+typedef Vec2f32 Vec2;
 
 #if OS_WINDOWS
 #  define WIN32_LEAN_AND_MEAN
