@@ -643,7 +643,7 @@ fn void   osDebugPrint(bool debug_mode, const char* format, ...);
 TermIOs   osStartTUI(bool blocking);
 fn void   osEndTUI(TermIOs old_terminal_attributes);
 fn Dim2   osGetTerminalDimensions();
-void      osBlitToTerminal(ptr writeable_output_ansi_string, i64 count);
+void      osBlitToTerminal(ptr writeable_output_ansi_string, u64 count);
 void      osReadConsoleInput(u8* buffer, u32 len);
 
 // network stuff

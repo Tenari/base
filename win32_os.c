@@ -198,7 +198,7 @@ fn Dim2 osGetTerminalDimensions() {
   return result;
 }
 
-void osBlitToTerminal(ptr writeable_output_ansi_string, i64 count) {
+void osBlitToTerminal(ptr writeable_output_ansi_string, u64 count) {
 	HANDLE hStdout = GetStdHandle(STD_OUTPUT_HANDLE);
 	DWORD written;
 	WriteConsole(hStdout, writeable_output_ansi_string, count, &written, NULL);
