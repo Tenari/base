@@ -191,7 +191,7 @@ fn bool osFileCreate(String filename) {
   return true;
   */
   bool result = true;
-  size_t handle = open((str)filename.bytes, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+  i32 handle = open((str)filename.bytes, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
   if (handle == -1) {
     result = false;
   }
@@ -215,7 +215,7 @@ fn bool osFileCreateWrite(String filename, String data) {
   return result;
   */
   bool result = true;
-  size_t handle = open(
+  i32 handle = open(
     (str)filename.bytes,
     O_RDWR | O_CREAT | O_TRUNC,
     S_IRUSR | S_IRGRP | S_IROTH
@@ -238,7 +238,7 @@ fn bool osFileWrite(String filename, String data) {
     close(handle);
   */
   bool result = true;
-  size_t handle = open((str) filename.bytes, O_RDWR | O_TRUNC, S_IRUSR | S_IRGRP | S_IROTH);
+  i32 handle = open((str) filename.bytes, O_RDWR | O_TRUNC, S_IRUSR | S_IRGRP | S_IROTH);
   if (handle == -1) result = false;
   write(handle, data.bytes, data.length);
   close(handle);
@@ -246,7 +246,7 @@ fn bool osFileWrite(String filename, String data) {
 }
 
 fn Resulti64 osFileOpenForWriting(String filename) {
-  size_t handle = open((str)filename.bytes, O_WRONLY | O_APPEND, S_IRUSR | S_IRGRP | S_IROTH);
+  i32 handle = open((str)filename.bytes, O_WRONLY | O_APPEND, S_IRUSR | S_IRGRP | S_IROTH);
   Resulti64 result = {
     .success = handle != -1,
     .value = (i64)handle,
@@ -266,7 +266,7 @@ fn Resulti64 osFileClose(Resulti64 handle) {
 fn bool osFileWriteOpenFile(Resulti64 handle, String data) {
   assert(handle.success == true);
   i32 wrote_this_round = 0;
-  for (i32 bytes_written = 0; bytes_written < data.length; bytes_written += wrote_this_round) {
+  for (u32 bytes_written = 0; bytes_written < data.length; bytes_written += wrote_this_round) {
     wrote_this_round = write((size_t)handle.value, data.bytes + bytes_written, data.length - bytes_written);
     if (wrote_this_round == -1) return false;
   }

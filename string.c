@@ -4,7 +4,7 @@ fn bool stringsEq(String* a, String* b) {
   if (a->length != b->length) {
     return false;
   }
-  for (i32 i = 0; i < a->length; i++) {
+  for (u32 i = 0; i < a->length; i++) {
     if (a->bytes[i] != b->bytes[i]) {
       return false;
     }
@@ -16,7 +16,7 @@ fn bool cStringEqString(str a, String* b) {
   if (strlen(a) != b->length) {
     return false;
   }
-  for (i32 i = 0; i < b->length; i++) {
+  for (u32 i = 0; i < b->length; i++) {
     if (a[i] != b->bytes[i]) {
       return false;
     }

@@ -707,6 +707,7 @@ fn void stringChunkListAppend(StringArena* a, StringChunkList* list, String stri
 fn void stringChunkListDeleteLast(StringArena* a, StringChunkList* list);
 fn StringChunkList stringChunkListInit(StringArena* a);
 fn void stringChunkCopyToBuffer(StringChunkList* list, u8* buffer, u32 len);
+fn bool stringChunkListsEq(StringChunkList* a, StringChunkList* b);
 
 ///// BINARY SERIALIZATION NONSENSE
 fn u64 writeU64ToBufferLE(u8* buffer, u64 value);

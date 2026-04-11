@@ -160,3 +160,20 @@ fn void stringChunkCopyToBuffer(StringChunkList* list, u8* buffer, u32 len) {
     buffer[i] = *((char*)(chunk + 1) + (i%STRING_CHUNK_PAYLOAD_SIZE));
   }
 }
+
+fn bool stringChunkListsEq(StringChunkList* a, StringChunkList* b) {
+  if (a->total_size != b->total_size) return false; 
+  StringChunk* chunk_a = a->first;
+  StringChunk* chunk_b = b->first;
+  for (u32 i = 0; i < a->total_size; i++) {
+    if (i > 0 && i % STRING_CHUNK_PAYLOAD_SIZE == 0) {
+      chunk_a = chunk_a->next;
+      chunk_b = chunk_b->next;
+    }
+    u8 a_char = *((char*)(chunk_a + 1) + (i%STRING_CHUNK_PAYLOAD_SIZE));
+    u8 b_char = *((char*)(chunk_b + 1) + (i%STRING_CHUNK_PAYLOAD_SIZE));
+    if (a_char != b_char) return false;
+  }
+  return true;
+}
+
