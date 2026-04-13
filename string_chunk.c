@@ -45,6 +45,7 @@ fn String stringChunkToString(Arena* a, StringChunkList list) {
     .capacity = list.total_size + 1,
     .bytes = arenaAllocArray(a, u8, list.total_size+1),
   };
+  MemoryZero(result.bytes, result.capacity);
   // copy the string bytes out of the StringChunkList into the correctly-sized String
   StringChunk* chunk = list.first;
   for (u32 i = 0; i < list.total_size; i++) {
