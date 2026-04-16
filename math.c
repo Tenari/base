@@ -1,5 +1,11 @@
 #include "all.h"
 
+fn bool xyzEq(XYZ a, XYZ b) {
+  return a.x == b.x &&
+    a.y == b.y &&
+    a.z == b.z;
+}
+
 fn Range1u64 range1u64Create(u64 min, u64 max) {
   Range1u64 result = {
     .min = min,

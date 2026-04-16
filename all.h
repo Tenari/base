@@ -364,6 +364,12 @@ typedef struct Box {
   u32 width;
 } Box;
 
+typedef struct XYZ {
+  i32 x;
+  i32 y;
+  i32 z;
+} XYZ;
+
 typedef struct Dim2 {
   u16 height;
   u16 width;
@@ -545,6 +551,9 @@ global const u8  MAX_u8  = 0xff;
 #ifndef PI
 #define PI (3.14159265358979323846)
 #endif
+#ifndef SQRT_3
+# define SQRT_3 (1.7320508076)
+#endif
 
 ///// CUSTOM ENTRY POINT
 /* TODO?
@@ -556,6 +565,7 @@ fn b32 update(void);
 */
 
 ///// MATH
+fn bool xyzEq(XYZ a, XYZ b);
 fn Range1u64 range1u64Create(u64 min, u64 max);
 fn Range1u64 mRangeFromNIdxMCount(u64 n_idx, u64 n_count, u64 m_count);
 fn void u32Quicksort(u32 arr[], u32 low, u32 high);
