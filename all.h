@@ -287,6 +287,12 @@ typedef u32 b32;
 #define true 1
 #define false 0
 
+typedef enum MaybeBool {
+  MaybeBoolNull,
+  MaybeBoolFalse,
+  MaybeBoolTrue,
+} MaybeBool;
+
 // Structs
 typedef struct Resulti64 {
   bool success;
