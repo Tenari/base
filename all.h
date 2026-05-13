@@ -370,6 +370,13 @@ typedef struct Box {
   u32 width;
 } Box;
 
+typedef struct Boxf32 {
+  f32 x;
+  f32 y;
+  f32 width;
+  f32 height;
+} Boxf32;
+
 typedef struct XYZ {
   i32 x;
   i32 y;
@@ -451,6 +458,27 @@ typedef union Vec2f32 {
 
 typedef Vec2f32 Range1f32;
 typedef Vec2f32 Vec2;
+
+typedef union Vec4f32 {
+  struct
+  {
+    f32 min_x;
+    f32 max_x;
+    f32 min_y;
+    f32 max_y;
+  };
+  struct
+  {
+    f32 x1;
+    f32 y1;
+    f32 x2;
+    f32 y2;
+  };
+  f32 v[4];
+} Vec4f32;
+
+typedef Vec4f32 Range2f32;
+typedef Vec4f32 Vec4;
 
 #if OS_WINDOWS
 #  define WIN32_LEAN_AND_MEAN
