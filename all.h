@@ -338,6 +338,22 @@ typedef enum Utf8Character {
   Utf8Character_Count,
 } Utf8Character;
 
+typedef struct Codepoint {
+  Utf8Character type;
+  u8 size;
+  u32 code;
+} Codepoint;
+
+typedef struct TextPos {
+  i64 line;
+  i64 column;
+} TextPos;
+
+typedef struct TextRange {
+  TextPos min;
+  TextPos max;
+} TextRange;
+
 typedef enum FieldType {
   FieldTypeU8,
   FieldTypeU16,
@@ -576,6 +592,8 @@ typedef struct ThreadContext {
 
 ///// HARDCODED GLOBALS
 global const u64 MAX_u64 = 0xffffffffffffffffull;
+global const i64 MAX_i64 = 9223372036854775807LL;
+global const i64 MIN_i64 = (-9223372036854775807LL - 1);
 global const u32 MAX_u32 = 0xffffffff;
 global const u16 MAX_u16 = 0xffff;
 global const u8  MAX_u8  = 0xff;
@@ -641,7 +659,8 @@ void scratchReturn(ScratchMem* scratch);
 
 fn bool stringsEq(String* a, String* b);
 fn bool cStringEqString(str a, String* b);
-fn Utf8Character classifyUtf8Character(u8 c);
+#define classifyUtf8Character utf8CharacterClassify
+fn Utf8Character utf8CharacterClassify(u8 c);
 fn bool isUtf8Ascii(u8 c);
 fn bool isUtf8TwoByte(u8 c);
 fn bool isUtf8ThreeByte(u8 c);
@@ -651,6 +670,14 @@ fn u8 upperAscii(u8 c);
 fn StringUTF16Const str16FromStr8(Arena* a, String string);
 fn bool isAlphaUnderscoreSpace(u8 c);
 fn bool isSimplePrintable(u8 c);
+fn bool codepointIsWordBreak(Codepoint c);
+fn bool codepointIsWhitespace(Codepoint c);
+fn Codepoint codepointFromBytes(ptr bytes, u32 offset);
+fn Codepoint codepointFromBytesBefore(ptr bytes, u32 offset);
+fn Codepoint codepointFromRawInt(u32 c);
+fn String stringFromRawCodepoint(Arena* a, u32 c);
+fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset);
+fn bool stringDeleteCodepointAtByte(String* s, u32 byte_offset);
 
 ///// OS-wrapped apis
 void      osInit();

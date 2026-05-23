@@ -24,7 +24,7 @@ fn bool cStringEqString(str a, String* b) {
   return true;
 }
 
-fn Utf8Character classifyUtf8Character(u8 c) {
+fn Utf8Character utf8CharacterClassify(u8 c) {
   /*two_byte utf8 starts with 1100. 192
   three_byte utf8 starts with 1110. 224
   four_byte utf8 starts with 1111. 240*/
@@ -38,6 +38,23 @@ fn Utf8Character classifyUtf8Character(u8 c) {
     return Utf8CharacterFourByte;
   } else {
     assert(false && "Not a valid utf8 starting byte");
+    return Utf8Character_Count;
+  }
+}
+
+fn Utf8Character utf8CharacterClassifyUnsafe(u8 c) {
+  /*two_byte utf8 starts with 1100. 192
+  three_byte utf8 starts with 1110. 224
+  four_byte utf8 starts with 1111. 240*/
+  if (c <= 127) {
+    return Utf8CharacterAscii;
+  } else if (c >= 192 && c < 224) {
+    return Utf8CharacterTwoByte;
+  } else if (c >= 224 && c < 240) {
+    return Utf8CharacterThreeByte;
+  } else if (c >= 240) {
+    return Utf8CharacterFourByte;
+  } else {
     return Utf8Character_Count;
   }
 }
@@ -79,6 +96,185 @@ fn bool isAlphaUnderscoreSpace(u8 c) {
         || c == '_');
 }
 
+fn bool codepointIsWordBreak(Codepoint c) {
+  return codepointIsWhitespace(c) ||
+    c.code == ';' || c.code == ':' ||
+    c.code == '.' || c.code == ',' || c.code == '!' || c.code == '?' ||
+    c.code == '|' || c.code == '/' || c.code == '\\'
+    ;
+} 
+
+fn bool codepointIsWhitespace(Codepoint c) {
+  return c.code == ' ' || c.code == '\t' || c.code == '\n';
+} 
+
+fn Codepoint codepointFromBytes(ptr bytes, u32 offset) {
+  Codepoint result = {0};
+  result.type = utf8CharacterClassify(bytes[offset]);
+  switch (result.type) {
+    case Utf8CharacterAscii: {
+      result.size = 1;
+      result.code = bytes[offset];
+    } break;
+    case Utf8CharacterTwoByte: {
+      result.size = 2;
+      result.code = (
+        bytes[offset] << 8 | bytes[offset+1]
+      );
+    } break;
+    case Utf8CharacterThreeByte: {
+      result.size = 3;
+      result.code = (
+        bytes[offset] << 16 | bytes[offset+1] << 8 | bytes[offset+2]
+      );
+    } break;
+    case Utf8CharacterFourByte: {
+      result.size = 4;
+      result.code = (
+        bytes[offset] << 24 | bytes[offset+1] << 16 | bytes[offset+2] << 8 | bytes[offset+3]
+      );
+    } break;
+    case Utf8Character_Count: {
+      printf("unabled to classify utf8 codepoint %d\n", bytes[offset]);
+      assert(false);
+    } break;
+  }
+  return result;
+}
+
+fn Codepoint codepointFromBytesBefore(ptr bytes, u32 offset) {
+  assert(offset > 0);
+  Codepoint result = { .type = Utf8Character_Count };
+  u32 i = 0;
+  while (result.type == Utf8Character_Count && i <= 4) {
+    i++;
+    offset -= 1;
+    result.type = utf8CharacterClassifyUnsafe(bytes[offset]);
+  }
+  switch (result.type) {
+    case Utf8CharacterAscii: {
+      result.size = 1;
+      result.code = bytes[offset];
+    } break;
+    case Utf8CharacterTwoByte: {
+      result.size = 2;
+      result.code = (
+        bytes[offset] << 8 | bytes[offset+1]
+      );
+    } break;
+    case Utf8CharacterThreeByte: {
+      result.size = 3;
+      result.code = (
+        bytes[offset] << 16 | bytes[offset+1] << 8 | bytes[offset+2]
+      );
+    } break;
+    case Utf8CharacterFourByte: {
+      result.size = 4;
+      result.code = (
+        bytes[offset] << 24 | bytes[offset+1] << 16 | bytes[offset+2] << 8 | bytes[offset+3]
+      );
+    } break;
+    case Utf8Character_Count: {
+      printf("unabled to classify utf8 codepoint %d\n", bytes[offset]);
+      assert(false);
+    } break;
+  }
+  return result;
+}
+
+fn Codepoint codepointFromRawInt(u32 c) {
+  Codepoint result = { .code = c };
+  if (c <= 127) { // ascii
+    result.type = Utf8CharacterAscii;
+    result.size = 1;
+  } else if ((c >> 8) >= 192 && (c >> 8) < 224) {
+    result.type = Utf8CharacterTwoByte;
+    result.size = 2;
+  } else if ((c >> 16) >= 224 && (c >> 16) < 240) {
+    result.type = Utf8CharacterThreeByte;
+    result.size = 3;
+  } else if ((c >> 24) >= 240) {
+    result.type = Utf8CharacterFourByte;
+    result.size = 4;
+  }
+  return result;
+}
+
+fn void codepointFillBuf(Codepoint cp, ptr buf) {
+  switch (cp.type) {
+    case Utf8CharacterAscii: {
+      buf[0] = cp.code;
+    } break;
+    case Utf8CharacterTwoByte: {
+      buf[0] = (cp.code & 0xFF00) >> 8;
+      buf[1] = cp.code & 0xFF;
+    } break;
+    case Utf8CharacterThreeByte: {
+      buf[0] = (cp.code & 0xFF0000) >> 16;
+      buf[1] = (cp.code & 0xFF00) >> 8;
+      buf[2] = cp.code & 0xFF;
+    } break;
+    case Utf8CharacterFourByte: {
+      buf[0] = (cp.code & 0xFF000000) >> 24;
+      buf[1] = (cp.code & 0xFF0000) >> 16;
+      buf[2] = (cp.code & 0xFF00) >> 8;
+      buf[3] = cp.code & 0xFF;
+    } break;
+    case Utf8Character_Count: {
+      assert(false);
+    } break;
+  }
+}
+
+fn String stringFromRawCodepoint(Arena* a, u32 c) {
+  String result = {0};
+  Codepoint codepoint = codepointFromRawInt(c);
+  switch (codepoint.type) {
+    case Utf8CharacterAscii:      result.capacity = 1; break;
+    case Utf8CharacterTwoByte:    result.capacity = 2; break;
+    case Utf8CharacterThreeByte:  result.capacity = 3; break;
+    case Utf8CharacterFourByte:   result.capacity = 4; break;
+    case Utf8Character_Count: {
+      assert(false);
+    } break;
+  }
+  result.length = result.capacity;
+  result.bytes = arenaAlloc(a, result.length);
+  codepointFillBuf(codepoint, result.bytes);
+  return result;
+}
+
+fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset) {
+  u32 remaining_space = s->capacity - s->length;
+  if (remaining_space < c.size) return false;
+
+  char codepoint_bytes[4];
+  codepointFillBuf(c, codepoint_bytes);
+  // shift all the bytes over from the byte_offset onward
+  for (u32 i = 0; i < c.size; i++) {
+    for (u32 ii = s->length; ii > byte_offset+i; ii--) {
+      s->bytes[ii] = s->bytes[ii-1];
+    }
+    s->length += 1;
+    s->bytes[byte_offset+i] = codepoint_bytes[i];
+  }
+  return true;
+}
+
+fn bool stringDeleteCodepointAtByte(String* s, u32 byte_offset) {
+  if (s->length < byte_offset) return false;
+
+  Codepoint cp = codepointFromBytes(s->bytes, byte_offset);
+  // shift all the bytes from the back towards the byte_offset
+  for (u32 i = 0; i < cp.size; i++) {
+    for (u32 ii = byte_offset+i; ii < s->length; ii++) {
+      s->bytes[ii] = s->bytes[ii+1];
+    }
+    s->length -= 1;
+  }
+  return true;
+}
+
 fn bool isSimplePrintable(u8 c) {
   return (c >= ' ' && c <= '~');
 }
@@ -88,7 +284,7 @@ typedef struct StrDecode {
 	u32 size;
 } StrDecode;
 
-fn StrDecode strDecodeUTF8(u8 *str, u32 cap){
+fn StrDecode strDecodeUTF8(u8 *string, u32 cap){
 	u8 length[] = {
 		1, 1, 1, 1, // 000xx
 		1, 1, 1, 1,
@@ -109,14 +305,14 @@ fn StrDecode strDecodeUTF8(u8 *str, u32 cap){
 		result.codepoint = '#';
 		result.size = 1;
 
-		u8 byte = str[0];
+		u8 byte = string[0];
 		u8 l = length[byte >> 3];
 		if (0 < l && l <= cap){
 			u32 cp = (byte & first_byte_mask[l]) << 18;
 			switch (l){
-				case 4: cp |= ((str[3] & 0x3F) << 0);
-				case 3: cp |= ((str[2] & 0x3F) << 6);
-				case 2: cp |= ((str[1] & 0x3F) << 12);
+				case 4: cp |= ((string[3] & 0x3F) << 0);
+				case 3: cp |= ((string[2] & 0x3F) << 6);
+				case 2: cp |= ((string[1] & 0x3F) << 12);
 				default: break;
 			}
 			cp >>= final_shift[l];
@@ -214,3 +410,4 @@ fn StringUTF16Const str16FromStr8(Arena* arena, String string) {
 	StringUTF16Const result = { memory, string_count };
 	return result;
 }
+
