@@ -677,7 +677,7 @@ fn Codepoint codepointFromBytesBefore(ptr bytes, u32 offset);
 fn Codepoint codepointFromRawInt(u32 c);
 fn void codepointFillBuf(Codepoint cp, ptr buf);
 fn String stringFromRawCodepoint(Arena* a, u32 c);
-fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset);
+fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset, bool keep_trailing_zero);
 fn u8 stringDeleteCodepointAtByte(String* s, u32 byte_offset);
 fn bool stringDeleteCodepointsBetweenByteOffsetsInclusive(String* s, u32 start, u32 end);
 

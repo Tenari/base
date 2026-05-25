@@ -244,8 +244,8 @@ fn String stringFromRawCodepoint(Arena* a, u32 c) {
   return result;
 }
 
-fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset) {
-  u32 remaining_space = s->capacity - s->length;
+fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset, bool keep_trailing_zero) {
+  i32 remaining_space = (s->capacity - (keep_trailing_zero ? 1 : 0)) - s->length;
   if (remaining_space < c.size) return false;
 
   char codepoint_bytes[4];
