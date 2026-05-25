@@ -261,8 +261,10 @@ fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset) {
   return true;
 }
 
-fn bool stringDeleteCodepointAtByte(String* s, u32 byte_offset) {
-  if (s->length < byte_offset) return false;
+fn u8 stringDeleteCodepointAtByte(String* s, u32 byte_offset) {
+  // returns number of bytes deleted
+  if (s->length < byte_offset) return 0;
+  if (s->length == 0) return 0;
 
   Codepoint cp = codepointFromBytes(s->bytes, byte_offset);
   // shift all the bytes from the back towards the byte_offset
@@ -271,6 +273,21 @@ fn bool stringDeleteCodepointAtByte(String* s, u32 byte_offset) {
       s->bytes[ii] = s->bytes[ii+1];
     }
     s->length -= 1;
+  }
+  return cp.size;
+}
+
+fn bool stringDeleteCodepointsBetweenByteOffsetsInclusive(String* s, u32 start, u32 end) {
+  if (end < start) return false;
+  if (s->length < start || s->length < end) return false;
+  if (s->length == 0) return false;
+
+  u32 codepoint_size = 0;
+  for (u32 i = 0; i < (end - start); i+=codepoint_size) {
+    codepoint_size = stringDeleteCodepointAtByte(s, start);
+    if (codepoint_size == 0) {
+      return false;
+    }
   }
   return true;
 }

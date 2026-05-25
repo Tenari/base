@@ -675,9 +675,11 @@ fn bool codepointIsWhitespace(Codepoint c);
 fn Codepoint codepointFromBytes(ptr bytes, u32 offset);
 fn Codepoint codepointFromBytesBefore(ptr bytes, u32 offset);
 fn Codepoint codepointFromRawInt(u32 c);
+fn void codepointFillBuf(Codepoint cp, ptr buf);
 fn String stringFromRawCodepoint(Arena* a, u32 c);
 fn bool stringInsertCodepointAtByte(String* s, Codepoint c, u32 byte_offset);
-fn bool stringDeleteCodepointAtByte(String* s, u32 byte_offset);
+fn u8 stringDeleteCodepointAtByte(String* s, u32 byte_offset);
+fn bool stringDeleteCodepointsBetweenByteOffsetsInclusive(String* s, u32 start, u32 end);
 
 ///// OS-wrapped apis
 void      osInit();
